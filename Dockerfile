@@ -2,14 +2,30 @@
 ARG VERSION
 ARG REGISTRY=""
 
+# Base image for building binaries
+FROM golang:1.24.1 AS builder
+
+WORKDIR /workspace
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+# Build all binaries
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o huawei-csi -ldflags="-s -w -X 'github.com/Huawei/eSDK_K8S_Plugin/v4/pkg/constants.CSIVersion=${VERSION}'" ./csi
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o storage-backend-controller -ldflags="-s -w -X 'github.com/Huawei/eSDK_K8S_Plugin/v4/pkg/constants.CSIVersion=${VERSION}'" ./cmd/storage-backend-controller
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o storage-backend-sidecar -ldflags="-s -w -X 'github.com/Huawei/eSDK_K8S_Plugin/v4/pkg/constants.CSIVersion=${VERSION}'" ./cmd/storage-backend-sidecar
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o huawei-csi-extender -ldflags="-s -w -X 'github.com/Huawei/eSDK_K8S_Plugin/v4/pkg/constants.CSIVersion=${VERSION}'" ./cmd/huawei-csi-extender
+
+# Final stage for huawei-csi-driver
 FROM busybox:stable-glibc as huawei-csi-driver
 
 LABEL version="${VERSION}"
 LABEL maintainers="Huawei eSDK CSI development team"
 LABEL description="Kubernetes CSI Driver for Huawei Storage: $VERSION"
 
-ARG binary=./huawei-csi
-COPY ${binary} huawei-csi
+# Copy the binary from builder stage
+COPY --from=builder /workspace/huawei-csi huawei-csi
 ENTRYPOINT ["/huawei-csi"]
 
 
@@ -20,8 +36,8 @@ LABEL version="${VERSION}"
 LABEL maintainers="Huawei eSDK CSI development team"
 LABEL description="Storage Backend Controller"
 
-ARG binary=./storage-backend-controller
-COPY ${binary} storage-backend-controller
+# Copy the binary from builder stage
+COPY --from=builder /workspace/storage-backend-controller storage-backend-controller
 ENTRYPOINT ["/storage-backend-controller"]
 
 
@@ -30,8 +46,8 @@ LABEL version="${VERSION}"
 LABEL maintainers="Huawei eSDK CSI development team"
 LABEL description="Storage Backend Sidecar"
 
-ARG binary=./storage-backend-sidecar
-COPY ${binary} storage-backend-sidecar
+# Copy the binary from builder stage
+COPY --from=builder /workspace/storage-backend-sidecar storage-backend-sidecar
 ENTRYPOINT ["/storage-backend-sidecar"]
 
 
@@ -40,6 +56,6 @@ LABEL version="${VERSION}"
 LABEL maintainers="Huawei eSDK CSI development team"
 LABEL description="Huawei CSI Extender"
 
-ARG binary=./huawei-csi-extender
-COPY ${binary} huawei-csi-extender
+# Copy the binary from builder stage
+COPY --from=builder /workspace/huawei-csi-extender huawei-csi-extender
 ENTRYPOINT ["/huawei-csi-extender"]

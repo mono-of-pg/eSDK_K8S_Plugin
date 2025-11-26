@@ -39,6 +39,16 @@ jobs:
           type=ref,event=branch
           type=sha
 
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.1'
+
+    - name: Build binaries
+      run: |
+        chmod +x build.sh
+        ./build.sh ${{ github.ref_name }} X86
+
     - name: Build and push
       uses: docker/build-push-action@v5
       with:

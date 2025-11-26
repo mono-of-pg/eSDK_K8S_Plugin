@@ -36,6 +36,21 @@ To use custom images in your deployments:
      --set-string images.huaweiCSIExtender=myregistry.com/myorg/huawei-csi-extender:latest
    ```
 
+For development purposes, you can also build and push images manually:
+```bash
+# Build images with custom registry
+make IMG_REGISTRY=myregistry.com/myorg build-images
+
+# Push images to registry
+make IMG_REGISTRY=myregistry.com/myorg push-images
+```
+
+The project also provides a build script that creates binaries and images in the standard packaging format:
+```bash
+# Build with standard packaging
+./build.sh v1.0.0 X86
+```
+
 ## Documentation
 
 You can click [Release](https://github.com/Huawei/eSDK_K8S_Plugin/releases) to obtain the released Huawei CSI package.

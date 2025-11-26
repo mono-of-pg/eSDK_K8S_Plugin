@@ -87,3 +87,4 @@ push-images:
 	docker push $(IMG_REGISTRY)/huawei-csi-extender:$(IMG_TAG)
 
 # Build and push images in one step
+# build-push-images: build-images push-images
