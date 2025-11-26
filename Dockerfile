@@ -1,5 +1,6 @@
 # eg: docker build --target huawei-csi-driver --platform linux/amd64 --build-arg VERSION=${VER} -f Dockerfile -t huawei-csi:${VER} .
 ARG VERSION
+ARG REGISTRY=""
 
 FROM busybox:stable-glibc as huawei-csi-driver
 

@@ -16,6 +16,11 @@ images:
     snapshotter: registry.k8s.io/sig-storage/csi-snapshotter:v6.3.0
     snapshotController: registry.k8s.io/sig-storage/snapshot-controller:v6.3.0
 
+  # Image registry configuration
+  # Allows specifying a custom registry for Huawei images
+  # Set to empty string to use default image names
+  registry: ""
+
 # Default image pull policy for sidecar container images, support [IfNotPresent, Always, Never]
 sidecarImagePullPolicy: "IfNotPresent"
 

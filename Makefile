@@ -67,3 +67,23 @@ GENERATE:
 	 -destination ./test/mocks/mock_client/fusionstorage.go IRestClient
 	mockgen -source ./storage/oceanstorage/oceandisk/client/client.go -package mock_client \
 	 -destination ./test/mocks/mock_client/oceandisk.go OceandiskClientInterface
+
+# New targets for container image management
+IMG_REGISTRY ?= ghcr.io/$(USER)/esdk-k8s-plugin
+IMG_TAG ?= $(VER)
+
+# Build all images with registry prefix
+build-images:
+	docker build --target huawei-csi-driver --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/huawei-csi:$(IMG_TAG) .
+	docker build --target storage-backend-controller --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/storage-backend-controller:$(IMG_TAG) .
+	docker build --target storage-backend-sidecar --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/storage-backend-sidecar:$(IMG_TAG) .
+	docker build --target huawei-csi-extender --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/huawei-csi-extender:$(IMG_TAG) .
+
+# Push all images to container registry
+push-images:
+	docker push $(IMG_REGISTRY)/huawei-csi:$(IMG_TAG)
+	docker push $(IMG_REGISTRY)/storage-backend-controller:$(IMG_TAG)
+	docker push $(IMG_REGISTRY)/storage-backend-sidecar:$(IMG_TAG)
+	docker push $(IMG_REGISTRY)/huawei-csi-extender:$(IMG_TAG)
+
+# Build and push images in one step
