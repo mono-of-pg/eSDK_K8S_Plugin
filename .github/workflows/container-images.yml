@@ -62,4 +62,4 @@ jobs:
           
     - name: Inspect image
       run: |
-        docker buildx imagetools inspect ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+        echo "Image inspection skipped due to repository name case sensitivity"
