@@ -74,10 +74,10 @@ IMG_TAG ?= $(VER)
 
 # Build all images with registry prefix
 build-images:
-	docker build --target huawei-csi-driver --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/huawei-csi:$(IMG_TAG) .
-	docker build --target storage-backend-controller --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/storage-backend-controller:$(IMG_TAG) .
-	docker build --target storage-backend-sidecar --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/storage-backend-sidecar:$(IMG_TAG) .
-	docker build --target huawei-csi-extender --platform linux/amd64 --build-arg VERSION=$(VER) --build-arg REGISTRY=$(IMG_REGISTRY) -f Dockerfile -t $(IMG_REGISTRY)/huawei-csi-extender:$(IMG_TAG) .
+	docker build --target huawei-csi-driver --platform linux/amd64 --build-arg VERSION=$(VER) -f Dockerfile -t $(IMG_REGISTRY)/huawei-csi:$(IMG_TAG) .
+	docker build --target storage-backend-controller --platform linux/amd64 --build-arg VERSION=$(VER) -f Dockerfile -t $(IMG_REGISTRY)/storage-backend-controller:$(IMG_TAG) .
+	docker build --target storage-backend-sidecar --platform linux/amd64 --build-arg VERSION=$(VER) -f Dockerfile -t $(IMG_REGISTRY)/storage-backend-sidecar:$(IMG_TAG) .
+	docker build --target huawei-csi-extender --platform linux/amd64 --build-arg VERSION=$(VER) -f Dockerfile -t $(IMG_REGISTRY)/huawei-csi-extender:$(IMG_TAG) .
 
 # Push all images to container registry
 push-images:

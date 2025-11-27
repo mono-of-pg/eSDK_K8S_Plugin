@@ -29,15 +29,21 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Set repository name to lowercase
+      id: repo
+      run: echo "lowercase_repo=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
     - name: Extract metadata for Docker
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ghcr.io/${{ github.repository }}
+        images: ghcr.io/${{ steps.repo.outputs.lowercase_repo }}
         tags: |
           type=ref,event=tag
           type=ref,event=branch
           type=sha
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=raw,value=sha-${{ github.sha }}
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -49,16 +55,25 @@ jobs:
         chmod +x build.sh
         ./build.sh ${{ github.ref_name }} X86
 
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        build-args: |
-          VERSION=${{ github.ref_name }}
+    - name: Build and push huawei-csi-driver
+      run: |
+        docker build --target huawei-csi-driver --platform linux/amd64 --build-arg VERSION=${{ github.ref_name }} -f Dockerfile -t ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/huawei-csi:${{ github.ref_name }} .
+        docker push ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/huawei-csi:${{ github.ref_name }}
+
+    - name: Build and push storage-backend-controller
+      run: |
+        docker build --target storage-backend-controller --platform linux/amd64 --build-arg VERSION=${{ github.ref_name }} -f Dockerfile -t ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/storage-backend-controller:${{ github.ref_name }} .
+        docker push ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/storage-backend-controller:${{ github.ref_name }}
+
+    - name: Build and push storage-backend-sidecar
+      run: |
+        docker build --target storage-backend-sidecar --platform linux/amd64 --build-arg VERSION=${{ github.ref_name }} -f Dockerfile -t ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/storage-backend-sidecar:${{ github.ref_name }} .
+        docker push ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/storage-backend-sidecar:${{ github.ref_name }}
+
+    - name: Build and push huawei-csi-extender
+      run: |
+        docker build --target huawei-csi-extender --platform linux/amd64 --build-arg VERSION=${{ github.ref_name }} -f Dockerfile -t ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/huawei-csi-extender:${{ github.ref_name }} .
+        docker push ghcr.io/${{ steps.repo.outputs.lowercase_repo }}/huawei-csi-extender:${{ github.ref_name }}
           
     - name: Inspect image
       run: |
